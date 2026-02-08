@@ -142,6 +142,33 @@
 <script type="text/javascript" src="index37ad.js?5d2872322fef463c838c"></script>
 
 
+<script>
+(function () {
+  const gameId = location.hostname + location.pathname;
+
+  // LOAD from cloud
+  window.addEventListener("message", (event) => {
+    if (event.data?.type !== "LOAD_SAVE") return;
+    const save = event.data.payload;
+    if (!save) return;
+
+    Object.entries(save).forEach(([k, v]) => {
+      localStorage.setItem(k, v);
+    });
+
+    console.log("[CloudSave] HTML5 save restored");
+  });
+
+  // SAVE to cloud
+  const originalSet = localStorage.setItem;
+  localStorage.setItem = function (key, value) {
+    originalSet.apply(this, arguments);
+    if (window.parent?.cloudSave) {
+      window.parent.cloudSave(gameId, { [key]: value });
+    }
+  };
+})();
+</script>
 </body>
 
 <!-- Mirrored from medv.io/bit-planes/ by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 07 May 2024 23:35:20 GMT -->
